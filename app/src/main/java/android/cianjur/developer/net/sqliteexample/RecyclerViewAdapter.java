@@ -13,23 +13,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 
 //Class Adapter ini Digunakan Untuk Mengatur Bagaimana Data akan Ditampilkan
 public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapter.ViewHolder>{
 
-    private ArrayList<String> namaList; //Digunakan untuk Nama
-    private ArrayList<String> jurusanList; //Digunakan untuk Jurusan
-    private ArrayList<String> nimList; //Digunakan untuk Jurusan
-    private Context context; //Membuat Variable Context
+    private ArrayList<DataFilter> dataList;
+    private Context context;
 
     //Membuat Konstruktor pada Class RecyclerViewAdapter
-    RecyclerViewAdapter(ArrayList<String> namaList, ArrayList<String> jurusanList, ArrayList<String> nimList){
-        this.namaList = namaList;
-        this.jurusanList = jurusanList;
-        this.nimList = nimList;
+    RecyclerViewAdapter(ArrayList<DataFilter> dataList){
+        this.dataList = dataList;
     }
 
     //ViewHolder Digunakan Untuk Menyimpan Referensi Dari View-View
@@ -62,9 +57,9 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public void onBindViewHolder(final ViewHolder holder, @SuppressLint("RecyclerView") final int position) {
         //Memanggil Nilai/Value Pada View-View Yang Telah Dibuat pada Posisi Tertentu
-        final String Nama = namaList.get(position);//Mengambil data (Nama) sesuai dengan posisi yang telah ditentukan
-        final String Jurusan = jurusanList.get(position);//Mengambil data (Jurusan) sesuai dengan posisi yang telah ditentukan
-        final String NIM = nimList.get(position);//Mengambil data (NIM) sesuai dengan posisi yang telah ditentukan
+        final String Nama = dataList.get(position).getNama();//Mengambil data (Nama) sesuai dengan posisi yang telah ditentukan
+        final String Jurusan = dataList.get(position).getJurusan();//Mengambil data (Jurusan) sesuai dengan posisi yang telah ditentukan
+        final String NIM = dataList.get(position).getNIM();//Mengambil data (NIM) sesuai dengan posisi yang telah ditentukan
         holder.Nama.setText(Nama);
         holder.Jurusan.setText(Jurusan);
         holder.Nim.setText(NIM);
@@ -87,19 +82,21 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
                                 //Menentukan di mana bagian kueri yang akan dipilih
                                 String selection = DBMahasiswa.MyColumns.NIM + " LIKE ?";
                                 //Menentukan Nama Dari Data Yang Ingin Dihapus
-                                String[] selectionArgs = {holder.Nim.getText().toString()};
+                                String[] selectionArgs = {NIM};
                                 DeleteData.delete(DBMahasiswa.MyColumns.NamaTabel, selection, selectionArgs);
 
                                 //Menghapus Data pada List dari Posisi Tertentu
-                                int position = nimList.indexOf(NIM);
-                                nimList.remove(position);
+                                String position2 = String.valueOf(NIM.indexOf(NIM));
+                                dataList.remove(position);
                                 notifyItemRemoved(position);
-                                Toast.makeText(view.getContext(),"Data Dihapus",Toast.LENGTH_SHORT).show();
+                                if (position2 == null) {
+                                    notifyItemRangeChanged(Integer.parseInt(position2), dataList.size());
+                                }
                                 break;
 
                             case R.id.update:
                                 Intent dataForm = new Intent(view.getContext(), UpdateActivity.class);
-                                dataForm.putExtra("SendNIM", holder.Nim.getText().toString());
+                                dataForm.putExtra("SendNIM", NIM);
                                 context.startActivity(dataForm);
                                 ((Activity)context).finish();
                                 break;
@@ -115,6 +112,13 @@ public class RecyclerViewAdapter extends RecyclerView.Adapter<RecyclerViewAdapte
     @Override
     public int getItemCount() {
         //Menghitung Ukuran/Jumlah Data Yang Akan Ditampilkan Pada RecyclerView
-        return nimList.size();
+        return dataList.size();
     }
+
+    void setFilter(ArrayList<DataFilter> filterList){
+        dataList = new ArrayList<>();
+        dataList.addAll(filterList);
+        notifyDataSetChanged();
+    }
+
 }

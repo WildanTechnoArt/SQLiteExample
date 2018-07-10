@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/item_list"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
@@ -13,7 +14,8 @@
         android:layout_height="70dp"
         android:layout_marginEnd="8dp"
         android:layout_marginRight="8dp"
-        app:srcCompat="@drawable/unpi" />
+        app:srcCompat="@drawable/unpi"
+        tools:ignore="ContentDescription" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +23,9 @@
         android:layout_toLeftOf="@+id/overflow"
         android:layout_toRightOf="@+id/image"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_toEndOf="@+id/image"
+        android:layout_toStartOf="@+id/overflow">
 
         <TextView
             android:id="@+id/name"
@@ -30,7 +34,8 @@
             android:layout_marginBottom="2dp"
             android:text="Nama"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/NIM"
@@ -38,7 +43,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="NIM"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            tools:ignore="HardcodedText" />
 
         <TextView
             android:id="@+id/jurusan"
@@ -46,7 +52,8 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="2dp"
             android:text="Jurusan"
-            android:textSize="14sp" />
+            android:textSize="14sp"
+            tools:ignore="HardcodedText" />
     </LinearLayout>
 
     <ImageButton
@@ -57,6 +64,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:background="#FFF9F9F9"
-        app:srcCompat="@drawable/ic_overflow" />
+        app:srcCompat="@drawable/ic_overflow"
+        tools:ignore="ContentDescription" />
 
 </RelativeLayout>

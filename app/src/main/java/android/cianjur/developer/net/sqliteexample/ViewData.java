@@ -9,35 +9,35 @@ import android.os.Bundle;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
+import android.support.v7.widget.SearchView;
 
 import java.util.ArrayList;
 
 public class ViewData extends AppCompatActivity {
     private DBMahasiswa MyDatabase;
 
-    private RecyclerView recyclerView;
-    private RecyclerView.Adapter adapter;
-    private RecyclerView.LayoutManager layoutManager;
-    private ArrayList<String> NamaList;
-    private ArrayList<String> JurusanList;
-    private ArrayList<String> NIMList;
+    private RecyclerViewAdapter adapter;
+    private ArrayList<DataFilter> dataList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_view_data);
-        getSupportActionBar().setTitle("Daftar Mahasiswa");
-        NamaList = new ArrayList<>();
-        JurusanList = new ArrayList<>();
-        NIMList = new ArrayList<>();
+        dataList = new ArrayList<>();
         MyDatabase = new DBMahasiswa(getBaseContext());
-        recyclerView = findViewById(R.id.recycler);
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        RecyclerView recyclerView = findViewById(R.id.recycler);
         getData();
         //Menggunakan Layout Manager, Dan Membuat List Secara Vertical
-        layoutManager = new LinearLayoutManager(this);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(true);
-        adapter = new RecyclerViewAdapter(NamaList, JurusanList, NIMList);
+        adapter = new RecyclerViewAdapter(dataList);
         //Memasang Adapter pada RecyclerView
         recyclerView.setAdapter(adapter);
         //Membuat Underline pada Setiap Item Didalam List
@@ -60,9 +60,42 @@ public class ViewData extends AppCompatActivity {
 
             cursor.moveToPosition(count);//Berpindah Posisi dari no index 0 hingga no index terakhir
 
-            NIMList.add(cursor.getString(0));//Menambil Data Dari Kolom 0 (NIM)
-            NamaList.add(cursor.getString(1));//Menambil Data Dari Kolom 1 (Nama)
-            JurusanList.add(cursor.getString(2));//Menambil Data Dari Kolom 2 (Jurusan)
+            //Memasukan semua data dari variable NIM, Nama dan Jurusan ke parameter Class DataFiter
+            dataList.add(new DataFilter(cursor.getString(0),
+                    cursor.getString(1), cursor.getString(2)));
         }
+    }
+
+    //Code Program pada Method dibawah ini akan Berjalan saat Option Menu Dibuat
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //Memanggil/Memasang menu item pada toolbar dari layout menu_bar.xml
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.search_bar, menu);
+        MenuItem searchIem = menu.findItem(R.id.search);
+        final SearchView searchView = (SearchView) searchIem.getActionView();
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @SuppressLint("SetTextI18n")
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String nextText) {
+                //Data akan berubah saat user menginputkan text/kata kunci pada SearchView
+                nextText = nextText.toLowerCase();
+                ArrayList<DataFilter> dataFilter = new ArrayList<>();
+                for(DataFilter data : dataList){
+                    String nama = data.getNama().toLowerCase();
+                    if(nama.contains(nextText)){
+                        dataFilter.add(data);
+                    }
+                }
+                adapter.setFilter(dataFilter);
+                return true;
+            }
+        });
+        return true;
     }
 }
